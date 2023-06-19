@@ -11,7 +11,7 @@ SYMFONY_CONSOLE = $(PHP) bin/console
 GREEN = /bin/echo -e "\x1b[32m\#\# $1\x1b[0m"
 RED = /bin/echo -e "\x1b[31m\#\# $1\x1b[0m"
 
-## —— 🔥 App ——
+## —— 🔥 App ——————————————————————————————————————————————————————————————————
 init: ## Init the project
 	$(MAKE) docker-start
 	$(MAKE) composer-install
@@ -20,7 +20,7 @@ init: ## Init the project
 cache-clear: ## Clear cache
 	$(SYMFONY_CONSOLE) cache:clear
 	
-## —— ✅ Test ——
+## —— ✅ Test ————————————————————————————————————————————————————————————————
 .PHONY: tests
 tests: ## Run all tests
 	$(MAKE) database-init-test
@@ -47,18 +47,39 @@ e2e-test: ## Run E2E tests
 	$(MAKE) database-init-test
 	$(PHP) bin/phpunit --testdox tests/E2E/
 	
-## —— 🐳 Docker ——
+## —— 🐳 Docker ————————————————————————————————————————————————————————————————
+start: ## Start app
+	$(MAKE) docker-start 
 docker-start: 
 	$(DOCKER_COMPOSE) up -d
+
+stop: ## Stop app
+	$(MAKE) docker-stop
+docker-stop: 
+	$(DOCKER_COMPOSE) stop
+	@$(call RED,"The containers are now stopped.")
+
 	
-## —— 🎻 Composer ——
+## —— 🎻 Composer ——————————————————————————————————————————————————————————————
 composer-install: ## Install dependencies
 	$(COMPOSER) install
 	
 composer-update: ## Update dependencies
 	$(COMPOSER) update
 	
-## —— 📊 Database ——
+## —— 🐈 NPM ———————————————————————————————————————————————————————————————————
+npm-install: ## Install all npm dependencies
+	$(NPM) install
+
+npm-update: ## Update all npm dependencies
+	$(NPM) update
+
+npm-watch: ## Update all npm dependencies
+	$(NPM) run watch
+
+
+	
+## —— 📊 Database ——————————————————————————————————————————————————————————————
 database-init: ## Init database
 	$(MAKE) database-drop
 	$(MAKE) database-create
@@ -89,6 +110,6 @@ database-fixtures-load: ## Load fixtures
 fixtures: ## Alias : database-fixtures-load
 	$(MAKE) database-fixtures-load
 	
-## —— 🛠️  Others ——
+## —— 🛠️  Others ———————————————————————————————————————————————————————————————
 help: ## List of commands
 	@grep -E '(^[a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
