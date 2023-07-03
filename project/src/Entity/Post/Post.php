@@ -51,11 +51,15 @@ class Post
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'posts')]
     private Collection $categories;
 
+    #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'posts')]
+    private Collection $tags;
+
     public function __construct()
     {
         $this->updatedAt = new \DateTimeImmutable();
         $this->createdAt = new \DateTimeImmutable();
         $this->categories = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -181,6 +185,30 @@ class Post
         }
 
         return $this;
+    }
+
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+            $tag->addPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $tag->removePost($this);
+        }
+
+        return  $this;
     }
 
     public function __toString()

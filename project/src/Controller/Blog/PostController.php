@@ -16,15 +16,15 @@ class PostController extends AbstractController
         PostRepository $postRepository,
         Request $request
     ): Response {
-        return $this->render('pages/blog/index.html.twig', [
+        return $this->render('pages/post/index.html.twig', [
             'posts' => $postRepository->findPublished($request->query->getInt('page', 1))
         ]);
     }
 
-    #[Route('/article/{slug}', name: 'post.show', methods: ['GET'])]
+    #[Route('/post/{slug}', name: 'post.show', methods: ['GET'])]
     public function show(Post $post): Response
     {
-        return $this->render('pages/blog/show.html.twig', [
+        return $this->render('pages/post/show.html.twig', [
             'post' => $post
         ]);
     }
