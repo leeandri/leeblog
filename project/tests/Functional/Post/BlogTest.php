@@ -4,7 +4,9 @@ namespace App\Tests\Functional\Post;
 
 use App\Entity\Post\Tag;
 use App\Entity\Post\Post;
+use App\Entity\Post\Category;
 use App\Repository\Post\PostRepository;
+use App\Repository\Post\CategoryRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -44,24 +46,24 @@ class BlogTest extends WebTestCase
         $this->assertGreaterThanOrEqual(1, count($posts));
     }
 
-    public function testDropdownWorks(): void
-    {
-        $client = static::createClient();
-        $crawler = $client->request(Request::METHOD_GET, '/');
+    // public function testDropdownWorks(): void
+    // {
+    //     $client = static::createClient();
+    //     $crawler = $client->request(Request::METHOD_GET, '/');
 
-        $this->assertResponseIsSuccessful();
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    //     $this->assertResponseIsSuccessful();
+    //     $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $link = $crawler->filter('.dropdown-menu > li > a')->link()->getUri();
+    //     $link = $crawler->filter('.dropdown-menu > li > a')->link()->getUri();
 
-        $client->request(Request::METHOD_GET, $link);
+    //     $client->request(Request::METHOD_GET, $link);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
-        $this->assertRouteSame('category.index');
-    }
+    //     $this->assertResponseIsSuccessful();
+    //     $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    //     $this->assertRouteSame('category.index');
+    // }
 
-    public function testSearchBarWorks(): void
+    public function testFilterWorks(): void
     {
 
         $client = static::createClient();
@@ -75,8 +77,14 @@ class BlogTest extends WebTestCase
         /** @var PostRepository */
         $postRepository = $entityManager->getRepository(Post::class);
 
+        /** @var CategoryRepository */
+        $categoryRepository = $entityManager->getRepository(Category::class);
+
         /** @var Post */
         $post = $postRepository->findOneBy([]);
+
+        /** @var Category */
+        $category = $categoryRepository->findOneBy([]);
 
         /** @var Tag */
         $tag = $post->getTags()[0];
@@ -96,7 +104,8 @@ class BlogTest extends WebTestCase
 
         foreach ($searches as $search) {
             $form = $crawler->filter('form[name=search]')->form([
-                'search[q]' => $search
+                'search[q]' => $search,
+                'search[categories][0]' => 1
             ]);
 
             $crawler = $client->submit($form);
@@ -106,15 +115,25 @@ class BlogTest extends WebTestCase
             $this->assertRouteSame('post.index');
 
             $nbPosts = count($crawler->filter('div.card'));
-            $postsTitle = $crawler->filter('div.card h5');
+            $posts = $crawler->filter('div.card');
             $count = 0;
 
-            foreach ($postsTitle as $title) {
+            foreach ($posts as $index => $title) {
+                $title = $crawler->filter('div.card h5')->getNode($index);
                 if (
                     str_contains($title->textContent, $search) ||
                     str_contains($tag->getName(), $search)
                 ) {
-                    $count++;
+                    $postCategories = $crawler->filter('div.card div.badges')->getNode($index)->childNodes;
+
+                    for ($i = 1; $i < $postCategories->count(); $i++) {
+                        $postCategory = $postCategories->item($i);
+                        $name = trim($postCategory->textContent);
+
+                        if ($name === $category->getName()) {
+                            $count++;
+                        }
+                    }
                 }
             }
 

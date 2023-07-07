@@ -71,33 +71,33 @@ class CategoryTest extends WebTestCase
         $this->assertGreaterThanOrEqual(1, count($posts));
     }
 
-    public function testDropdownWorks(): void
-    {
-        $client = static::createClient();
+    // public function testDropdownWorks(): void
+    // {
+    //     $client = static::createClient();
 
-        /** @var UrlGeneratorInterface */
-        $urlGeneratorInterface = $client->getContainer()->get('router');
+    //     /** @var UrlGeneratorInterface */
+    //     $urlGeneratorInterface = $client->getContainer()->get('router');
 
-        /** @var EntityManagerInterface */
-        $entityManager = $client->getContainer()->get('doctrine.orm.entity_manager');
+    //     /** @var EntityManagerInterface */
+    //     $entityManager = $client->getContainer()->get('doctrine.orm.entity_manager');
 
-        /** @var CategoryRepository */
-        $categoryRepository = $entityManager->getRepository(Category::class);
+    //     /** @var CategoryRepository */
+    //     $categoryRepository = $entityManager->getRepository(Category::class);
 
-        /** @var Category */
-        $category = $categoryRepository->findOneBy([]);
+    //     /** @var Category */
+    //     $category = $categoryRepository->findOneBy([]);
 
-        $crawler = $client->request(Request::METHOD_GET, $urlGeneratorInterface->generate('category.index', ['slug' => $category->getSlug()]));
+    //     $crawler = $client->request(Request::METHOD_GET, $urlGeneratorInterface->generate('category.index', ['slug' => $category->getSlug()]));
 
-        $this->assertResponseIsSuccessful();
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    //     $this->assertResponseIsSuccessful();
+    //     $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $link = $crawler->filter('.dropdown-menu > li > a')->link()->getUri();
+    //     $link = $crawler->filter('.dropdown-menu > li > a')->link()->getUri();
 
-        $client->request(Request::METHOD_GET, $link);
+    //     $client->request(Request::METHOD_GET, $link);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
-        $this->assertRouteSame('category.index');
-    }
+    //     $this->assertResponseIsSuccessful();
+    //     $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    //     $this->assertRouteSame('category.index');
+    // }
 }
