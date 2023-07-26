@@ -6,7 +6,21 @@
  */
 
 // any CSS you import will output into a single css file (app.css in this case)
+import Like from "./scripts/like";
 import "./styles/app.css";
 import "tw-elements";
 
-console.log("Webpack Encore is working");
+//console.log("Webpack Encore is working");
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Webpack Encore is working !");
+
+  //Like's system
+  const likeElements = [].slice.call(
+    document.querySelectorAll("a[data-action='like']")
+  );
+  console.log(likeElements);
+  if (likeElements) {
+    new Like(likeElements);
+  }
+});

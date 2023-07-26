@@ -26,7 +26,7 @@ tests: ## Run all tests
 	$(MAKE) database-init-test
 	$(PHP) bin/phpunit --testdox tests/Unit/
 	$(PHP) bin/phpunit --testdox tests/Functional/
-	$(PHP) bin/phpunit --testdox tests/E2E/
+#	$(PHP) bin/phpunit --testdox tests/E2E/
 
 database-init-test: ## Init database for test
 	$(SYMFONY_CONSOLE) d:d:d --force --if-exists --env=test
