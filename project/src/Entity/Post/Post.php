@@ -59,6 +59,11 @@ class Post
     #[JoinTable('users_posts_likes')]
     private Collection $likes;
 
+
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class, orphanRemoval: true)]
+    private Collection $comments;
+
+
     public function __construct()
     {
         $this->updatedAt = new \DateTimeImmutable();
@@ -66,6 +71,7 @@ class Post
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -241,13 +247,44 @@ class Post
     {
         return $this->likes->contains($user);
     }
-    
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getPost() === $this) {
+                $comment->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * Get the number of likes
      *
      * @return integer
      */
-    public function howManyLikes() : int {
+    public function howManyLikes(): int
+    {
         return count($this->likes);
     }
 
